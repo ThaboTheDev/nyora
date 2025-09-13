@@ -1,4 +1,5 @@
 import 'package:nyora/console/game_console.dart';
+import 'package:nyora/world/position.dart';
 import 'package:nyora/world/world.dart';
 
 class Render {
@@ -10,8 +11,12 @@ class Render {
 
   void render() {
     // Render the world to the console
-    for (var row in _world.map) {
-      _console.writeLine(row);
+    for (int y = 0; y < _world.height; y++) {
+      String line = '';
+      for (int x = 0; x < _world.width; x++) {
+        line += _world.charAt(Position(x, y));
+      }
+      _console.writeLine(line);
     }
   }
 
