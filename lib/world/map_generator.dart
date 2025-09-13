@@ -27,31 +27,28 @@ class MapGenerator {
     int height, {
     double wallChance = 0.1,
   }) {
-    final random = DateTime.now().millisecondsSinceEpoch % 4294967295;
-    // We’ll do a simple pseudo random by mod
-    int seed = random;
-    List<List<String>> rows = [];
+    // Linear Congruential Generator for deterministic randomness
+    int seed = DateTime.now().millisecondsSinceEpoch & 0x7fffffff;
 
-    for (int y = 0; y < height; y++) {
-      List<String> row = [];
-      for (int x = 0; x < width; x++) {
-        if (_isWall(x, y, width, height)) {
-          row.add('#'); // boundary walls
-        } else {
-          seed = (seed * 1103515245 + 12345) & 0x7fffffff; // simple LCG
-          double randVal = seed / 0x7fffffff;
-          if (randVal < wallChance) {
-            row.add('#');
-          } else {
-            row.add('.');
-          }
-        }
-      }
-      rows.add(row);
+    double nextRandom() {
+      seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+      return seed / 0x7fffffff;
     }
+
+    // Helper to check if a cell is a border wall
+    bool isBoundary(int x, int y) =>
+        x == 0 || y == 0 || x == width - 1 || y == height - 1;
+
+    final rows = List<List<String>>.generate(height, (y) {
+      return List<String>.generate(width, (x) {
+        if (isBoundary(x, y)) return '#'; // always walls on borders
+        return nextRandom() < wallChance ? '#' : '.';
+      });
+    });
 
     return rows;
   }
+
 
   static bool _isWall(int x, int y, int width, int height) {
     return y == 0 || y == height - 1 || x == 0 || x == width - 1;

@@ -20,8 +20,8 @@ class Game {
     _input = Input(_console);
     _menu = GameMenu(_console, _input);
     _world = World(
-      width: _console.windowWidth - 5,
-      height: _console.windowHeight - 5,
+      width: _console.windowWidth - 60,
+      height: _console.windowHeight - 30,
       random: true,
     );
     _render = Render(_world, _console);
@@ -43,15 +43,15 @@ class Game {
       _render.render();
       final key = _input.getInput();
 
-      if (key.char == 'q') {
+      if (key.char.toLowerCase() == 'q') {
         stop();
       }
 
-      if (key.char == 'p') {
+      if (key.char.toLowerCase() == 'p') {
         pause();
       }
 
-      if (key.char == 'h') {
+      if (key.char.toLowerCase() == 'h') {
         help();
       }
 
@@ -60,41 +60,43 @@ class Game {
   }
 
   void handleKeyPress(Key key, Player player) {
-    // Key press handling logic here
-    switch (key.char) {
-      case "w" || "W":
-        Position newPos = Position(player.pos.getX, player.pos.getY - 1);
+    // normalize the input to lowercase so we don’t duplicate code
+    final pressedKey = key.char.toLowerCase();
 
-        if (_world.movePlayer(player.pos, newPos)) {
-          player.setPos = newPos;
-        }
+    // current position
+    final x = player.pos.getX;
+    final y = player.pos.getY;
+
+    Position newPos;
+
+    switch (pressedKey) {
+      case 'w':
+        newPos = Position(x, y - 1);
         break;
 
-      case "a" || "A":
-        Position newPos = Position(player.pos.getX - 1, player.pos.getY);
-        if (_world.movePlayer(player.pos, newPos)) {
-          player.setPos = newPos;
-        }
+      case 'a':
+        newPos = Position(x - 1, y);
         break;
 
-      case "s" || "S":
-        Position newPos = Position(player.pos.getX, player.pos.getY + 1);
-        if (_world.movePlayer(player.pos, newPos)) {
-          player.setPos = newPos;
-        }
+      case 's':
+        newPos = Position(x, y + 1);
         break;
 
-      case "d" || "D":
-        Position newPos = Position(player.pos.getX + 1, player.pos.getY);
-        if (_world.movePlayer(player.pos, newPos)) {
-          player.setPos = newPos;
-        }
+      case 'd':
+        newPos = Position(x + 1, y);
         break;
+
       default:
-        // Unhandled key
-        break;
+        // unhandled key
+        return;
+    }
+
+    // Move the player if the world allows it
+    if (_world.movePlayer(player.pos, newPos)) {
+      player.setPos = newPos; // use the actual setter
     }
   }
+
 
   void help() {
     // Help logic here
